@@ -6,27 +6,20 @@
 flowchart TD
   %% Styles
   %% Neutral styles
-  classDef nodeStyle fill:#ffffff,stroke:#444,stroke-width:1px;
+  classDef pastelA fill:#fff8f0,stroke:#cfc3b8,stroke-width:1px,color:#000;
+  classDef pastelB fill:#f7fff6,stroke:#cfe8d8,stroke-width:1px,color:#000;
+  classDef pastelC fill:#f3f7ff,stroke:#cfd8ec,stroke-width:1px,color:#000;
 
-  l1["<pre>inbox/edifact/        &lt;-- Fournisseur d&eacute;pose ici</pre>"]:::nodeStyle
-  l2["<pre>    |</pre>"]:::nodeStyle
-  l3["<pre>    v</pre>"]:::nodeStyle
-  l4["<pre>[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)  &lt;- processeur initial</pre>"]:::nodeStyle
-  l5["<pre>    |</pre>"]:::nodeStyle
-  l6["<pre>    |  (1) lit `inbox/edifact/`</pre>"]:::nodeStyle
-  l7["<pre>    |  (2) split : d&eacute;coupe le flux EDIFACT en messages (UNH..UNT)</pre>"]:::nodeStyle
-  l8["<pre>    v</pre>"]:::nodeStyle
-  l9["<pre>tmp/split_MANITOU_DESADV_D96A_R/   &lt;-- fichiers .txt cr&eacute;es par le splitter</pre>"]:::nodeStyle
-  l10["<pre>    |</pre>"]:::nodeStyle
-  l11["<pre>    v</pre>"]:::nodeStyle
-  l12["<pre>[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)</pre>"]:::nodeStyle
-  l13["<pre>    |</pre>"]:::nodeStyle
-  l14["<pre>    |  (1) lit chaque fichier split</pre>"]:::nodeStyle
-  l15["<pre>    |  (2) traduit le message EDIFACT -&gt; XML</pre>"]:::nodeStyle
-  l16["<pre>    v</pre>"]:::nodeStyle
-  l17["<pre>outbox/   &lt;-- fichiers XML d&eacute;pos&eacute;s ici</pre>"]:::nodeStyle
+  A["inbox/edifact/   &lt;-- Fournisseur d&eacute;pose ici"]:::pastelA
+  B["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   &lt;- processeur initial"]:::pastelB
+  C["tmp/split_MANITOU_DESADV_D96A_R/   &lt;-- fichiers .txt cr&eacute;es par le splitter"]:::pastelC
+  D["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]:::pastelB
+  E["outbox/   &lt;-- fichiers XML d&eacute;pos&eacute;s ici"]:::pastelC
 
-  l1 --> l2 --> l3 --> l4 --> l5 --> l6 --> l7 --> l8 --> l9 --> l10 --> l11 --> l12 --> l13 --> l14 --> l15 --> l16 --> l17
+  A --> B
+  B -->|"(1) lit `inbox/edifact/`<br/>(2) split : d&eacute;coupe le flux EDIFACT en messages (UNH..UNT)"| C
+  C --> D
+  D -->|"(1) lit chaque fichier split<br/>(2) traduit le message EDIFACT -> XML"| E
 ```
 
 
