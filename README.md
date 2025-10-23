@@ -20,6 +20,13 @@ flowchart TD
   B -->|"(1) lit `inbox/edifact/`<br/>(2) split : d&eacute;coupe le flux EDIFACT en messages (UNH..UNT)"| C
   C --> D
   D -->|"(1) lit chaque fichier split<br/>(2) traduit le message EDIFACT -> XML"| E
+
+  %% widen nodes to reduce text wrapping
+  style A width:550px
+  style B width:650px
+  style C width:700px
+  style D width:650px
+  style E width:550px
 ```
 
 
