@@ -1,30 +1,28 @@
 # MANITOU DESADV D96A R 
 ## Schéma du flux
+
+
 ```mermaid
-flowchart LR
-  %% Styles: pastel backgrounds, black text
-  classDef pastelA fill:#fff8f0,stroke:#cfc3b8,stroke-width:1px,color:#000;
-  classDef pastelB fill:#f7fff6,stroke:#cfe8d8,stroke-width:1px,color:#000;
-  classDef pastelC fill:#f3f7ff,stroke:#cfd8ec,stroke-width:1px,color:#000;
+flowchart TD
+  %% Styles
+  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px;
+  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px;
+  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px;
+  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px;
 
-  %% large nodes, left-aligned to avoid truncation
-  style A width:1000px
-  style B width:1000px
-  style C width:1000px
-  style D width:1000px
-  style E width:1000px
+  inbox["inbox/edifact<br/> (fournisseur)"]:::inboxStyle
+  edisend_split["EDISEND: DESADV<br/>MANITOU_DESADV_D96A_R<br/>(split)"]:::splitStyle
+  split_dir["tmp/split_MANITOU_DESADV_D96A_R<br/>(messages UNH..UNT)"]:::splitStyle
+  edisend_trad["EDISEND: TRAD_DESADV_MANI<br/>MANITOU_DESADV_D96A_R_trad<br/>(trad)"]:::tradStyle
+  outbox["outbox/<br/>(XML)"]:::outStyle
 
-  A["inbox/edifact/   <-- Fournisseur dépose ici"]:::pastelA
-  B["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   <-- processeur initial"]:::pastelB
-  C["tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt crées par le splitter"]:::pastelC
-  D["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]:::pastelB
-  E["outbox/   <-- fichiers XML déposés ici"]:::pastelC
-
-  A --> B
-  B -->|"(1) lit `inbox/edifact/`  (2) split : découpe le flux EDIFACT en messages (UNH..UNT)"| C
-  C --> D
-  D -->|"(1) lit chaque fichier split  (2) traduit le message EDIFACT -> XML"| E
+  inbox --> edisend_split
+  edisend_split -->|normalize → split| split_dir
+  split_dir --> edisend_trad
+  edisend_trad -->|map → xml| outbox
 ```
+
+
 ## Que fait chaque composant ?
 
 - Fournisseur : place un fichier EDIFACT (interchange contenant possiblement plusieurs messages UNH..UNT) dans `inbox/edifact`.
@@ -62,4 +60,3 @@ Q2 — On pourrait enlever le deuxième edisend et appeler le traducteur directe
 
 - Inconvénients / risques :
   - Perte de séparation claire des responsabilités : splitter vs traducteur. En cas d'erreur de traduction, il peut être plus difficile de relancer uniquement la traduction sans refaire le split.
-
