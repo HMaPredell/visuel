@@ -3,18 +3,26 @@
 
 
 ```mermaid
-flowchart TD
+flowchart LR
   %% Styles
   %% Neutral styles
   classDef pastelA fill:#fff8f0,stroke:#cfc3b8,stroke-width:1px,color:#000;
   classDef pastelB fill:#f7fff6,stroke:#cfe8d8,stroke-width:1px,color:#000;
   classDef pastelC fill:#f3f7ff,stroke:#cfd8ec,stroke-width:1px,color:#000;
 
-  A["inbox/edifact/   &lt;-- Fournisseur d&eacute;pose ici"]:::pastelA
-  B["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   &lt;- processeur initial"]:::pastelB
-  C["tmp/split_MANITOU_DESADV_D96A_R/   &lt;-- fichiers .txt cr&eacute;es par le splitter"]:::pastelC
+  %% direction LR + compact font
+  linkStyle default stroke:#444,stroke-width:1px
+  style A width:700px,font-size:12px
+  style B width:700px,font-size:12px
+  style C width:780px,font-size:12px
+  style D width:700px,font-size:12px
+  style E width:700px,font-size:12px
+
+  A["inbox/edifact/   <-- Fournisseur dépose ici"]:::pastelA
+  B["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   <-- processeur initial"]:::pastelB
+  C["tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt crées par le splitter"]:::pastelC
   D["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]:::pastelB
-  E["outbox/   &lt;-- fichiers XML d&eacute;pos&eacute;s ici"]:::pastelC
+  E["outbox/   <-- fichiers XML déposés ici"]:::pastelC
 
   A --> B
   B -->|"(1) lit `inbox/edifact/`<br/>(2) split : d&eacute;coupe le flux EDIFACT en messages (UNH..UNT)"| C
@@ -22,11 +30,10 @@ flowchart TD
   D -->|"(1) lit chaque fichier split<br/>(2) traduit le message EDIFACT -> XML"| E
 
   %% widen nodes to reduce text wrapping
-  style A width:550px
-  style B width:650px
-  style C width:700px
-  style D width:650px
-  style E width:550px
+  A --> B
+  B -->|"(1) lit `inbox/edifact/`  (2) split : découpe le flux EDIFACT en messages (UNH..UNT)"| C
+  C --> D
+  D -->|"(1) lit chaque fichier split  (2) traduit le message EDIFACT -> XML"| E
 ```
 
 
