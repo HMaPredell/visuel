@@ -1,39 +1,30 @@
 # MANITOU DESADV D96A R 
 ## Schéma du flux
-
-
 ```mermaid
 flowchart LR
-
-  %% Styles
-  %% Neutral styles
+  %% Styles: pastel backgrounds, black text
   classDef pastelA fill:#fff8f0,stroke:#cfc3b8,stroke-width:1px,color:#000;
   classDef pastelB fill:#f7fff6,stroke:#cfe8d8,stroke-width:1px,color:#000;
   classDef pastelC fill:#f3f7ff,stroke:#cfd8ec,stroke-width:1px,color:#000;
 
-  %% large nodes, left-aligned preformatted text
-  style A width:900px;font-size:13px;text-align:left
-  style B width:900px;font-size:13px;text-align:left
-  style C width:900px;font-size:13px;text-align:left
-  style D width:900px;font-size:13px;text-align:left
-  style E width:900px;font-size:13px;text-align:left
+  %% large nodes, left-aligned to avoid truncation
+  style A width:1000px
+  style B width:1000px
+  style C width:1000px
+  style D width:1000px
+  style E width:1000px
 
-  A["<div style='white-space:pre; text-align:left;'>inbox/edifact/   <-- Fournisseur dépose ici</div>"]:::pastelA
-  B["<div style='white-space:pre; text-align:left;'>[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   <-- processeur initial</div>"]:::pastelB
-  C["<div style='white-space:pre; text-align:left;'>tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt crées par le splitter</div>"]:::pastelC
-  D["<div style='white-space:pre; text-align:left;'>[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)</div>"]:::pastelB
-  E["<div style='white-space:pre; text-align:left;'>outbox/   <-- fichiers XML déposés ici</div>"]:::pastelC
+  A["inbox/edifact/   <-- Fournisseur dépose ici"]:::pastelA
+  B["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)   <-- processeur initial"]:::pastelB
+  C["tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt crées par le splitter"]:::pastelC
+  D["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]:::pastelB
+  E["outbox/   <-- fichiers XML déposés ici"]:::pastelC
 
   A --> B
-  B -->|"<div style='white-space:pre; text-align:left;'>(1) lit `inbox/edifact/`<br/>(2) split : découpe le flux EDIFACT en messages (UNH..UNT)</div>"| C
-  C --> D
-  D -->|"<div style='white-space:pre; text-align:left;'>(1) lit chaque fichier split<br/>(2) traduit le message EDIFACT -> XML</div>"| E
   B -->|"(1) lit `inbox/edifact/`  (2) split : découpe le flux EDIFACT en messages (UNH..UNT)"| C
   C --> D
   D -->|"(1) lit chaque fichier split  (2) traduit le message EDIFACT -> XML"| E
 ```
-
-
 ## Que fait chaque composant ?
 
 - Fournisseur : place un fichier EDIFACT (interchange contenant possiblement plusieurs messages UNH..UNT) dans `inbox/edifact`.
