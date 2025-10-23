@@ -9,6 +9,17 @@
 ## But
 
 Document court pour expliquer comment le flux DESADV est traité :
+# MANITOU DESADV D96A R
+
+> Split & Traduction — vue d'ensemble
+
+---
+
+![status](https://img.shields.io/badge/status-ready-brightgreen) ![format](https://img.shields.io/badge/format-MD%20%2B%20Mermaid-blue)
+
+## But
+
+Document court pour expliquer comment le flux DESADV est traité :
 - split (découpage UNH..UNT)
 - traduction (EDIFACT -> XML)
 
@@ -22,16 +33,22 @@ Pour afficher le diagramme dans VS Code : installe l'extension `Markdown Preview
 
 ```mermaid
 flowchart TD
-  inbox[inbox/edifact\n(fournisseur)]
-  edisend_split[EDISEND: DESADV\n(MANITOU_DESADV_D96A_R) - split]
-  split_dir[tmp/split_MANITOU_DESADV_D96A_R\n(messages UNH..UNT)]
-  edisend_trad[EDISEND: TRAD_DESADV_MANI\n(MANITOU_DESADV_D96A_R_trad) - trad]
-  outbox[outbox/\n(XML)]
+  %% Styles
+  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px;
+  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px;
+  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px;
+  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px;
+
+  inbox["inbox/edifact<br/> (fournisseur)"]:::inboxStyle
+  edisend_split["EDISEND: DESADV<br/>MANITOU_DESADV_D96A_R<br/>(split)"]:::splitStyle
+  split_dir["tmp/split_MANITOU_DESADV_D96A_R<br/>(messages UNH..UNT)"]:::splitStyle
+  edisend_trad["EDISEND: TRAD_DESADV_MANI<br/>MANITOU_DESADV_D96A_R_trad<br/>(trad)"]:::tradStyle
+  outbox["outbox/<br/>(XML)"]:::outStyle
 
   inbox --> edisend_split
-  edisend_split -->|normalize -> split| split_dir
+  edisend_split -->|normalize → split| split_dir
   split_dir --> edisend_trad
-  edisend_trad -->|map -> xml| outbox
+  edisend_trad -->|map → xml| outbox
 ```
 
 ---
@@ -111,11 +128,3 @@ Recommandation : garder la séparation pour faciliter l'exploitation et la relan
 - Pour lister les splits prêts à traduire :
   - PowerShell : `Get-ChildItem "$env:HOME\tmp\split_MANITOU_DESADV_D96A_R"`
 - Nettoyage : configurer une tâche périodique pour purger `tmp/split_MANITOU_DESADV_D96A_R/` après X jours.
-
----
-
-Si tu veux que je :
-- génère une image PNG du diagramme et l'ajoute au README, ou
-- écrive un petit script PowerShell pour relancer la traduction des fichiers split,
-
-dis‑moi et je le fais.
