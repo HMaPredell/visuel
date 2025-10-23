@@ -3,21 +3,30 @@
 
 
 ```mermaid
-flowchart TD
+flowchart LR
   %% Styles
-  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px;
-  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px;
-  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px;
-  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px;
+  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px,color:#000;
+  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px,color:#000;
+  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px,color:#000;
+  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px,color:#000;
+  %% Reduce font-size to help avoid wrapping in some renderers
+  classDef smallFont font-size:12px;
 
-  inbox["inbox/edifact<br/> (fournisseur)"]:::inboxStyle
-  edisend_split["EDISEND: DESADV<br/>MANITOU_DESADV_D96A_R<br/>(split)"]:::splitStyle
-  split_dir["tmp/split_MANITOU_DESADV_D96A_R<br/>(messages UNH..UNT)"]:::splitStyle
-  edisend_trad["EDISEND: TRAD_DESADV_MANI<br/>MANITOU_DESADV_D96A_R_trad<br/>(trad)"]:::tradStyle
-  outbox["outbox/<br/>(XML)"]:::outStyle
+  inbox[["inbox/edifact/ <-- Fournisseur dépose ici"]]:::inboxStyle:::smallFont
+  edisend_split[["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)  <- processeur initial"]]:::splitStyle:::smallFont
+  split_dir[["/tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt créés par le splitter"]]:::splitStyle:::smallFont
+  edisend_trad[["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]]:::tradStyle:::smallFont
+  outbox[["outbox/   <-- fichiers XML déposés ici"]]:::outStyle:::smallFont
+
+  %% Explicit node widths to reduce clipping in previews
+  style inbox width:420px
+  style edisend_split width:700px
+  style split_dir width:700px
+  style edisend_trad width:700px
+  style outbox width:420px
 
   inbox --> edisend_split
-  edisend_split -->|normalize → split| split_dir
+  edisend_split -->|split| split_dir
   split_dir --> edisend_trad
   edisend_trad -->|map → xml| outbox
 ```
