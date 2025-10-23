@@ -4,31 +4,49 @@
 
 ```mermaid
 flowchart LR
-  %% Styles
-  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px,color:#000;
-  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px,color:#000;
-  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px,color:#000;
-  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px,color:#000;
-  %% Reduce font-size to help avoid wrapping in some renderers
+  %% Styles (paler backgrounds, black text)
+  classDef inboxStyle fill:#fff7f7,stroke:#c85b5b,stroke-width:1px,color:#000;
+  classDef splitStyle fill:#fffdf0,stroke:#d6a85a,stroke-width:1px,color:#000;
+  classDef tradStyle fill:#f6fff5,stroke:#6aa86a,stroke-width:1px,color:#000;
+  classDef outStyle fill:#f2f7ff,stroke:#5a9be0,stroke-width:1px,color:#000;
+  %% Font-size definition (use single class application)
   classDef smallFont font-size:12px;
 
-  inbox[["inbox/edifact/ <-- Fournisseur dépose ici"]]:::inboxStyle:::smallFont
-  edisend_split[["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)  <- processeur initial"]]:::splitStyle:::smallFont
-  split_dir[["/tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt créés par le splitter"]]:::splitStyle:::smallFont
-  edisend_trad[["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]]:::tradStyle:::smallFont
-  outbox[["outbox/   <-- fichiers XML déposés ici"]]:::outStyle:::smallFont
+  %% Nodes (apply one class per node, then assign smallFont separately)
+  inbox[["inbox/edifact/ <-- Fournisseur dépose ici"]]
+  class inbox inboxStyle
+  class inbox smallFont
+
+  edisend_split[["[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)  <- processeur initial"]]
+  class edisend_split splitStyle
+  class edisend_split smallFont
+
+  split_dir[["/tmp/split_MANITOU_DESADV_D96A_R/   <-- fichiers .txt créés par le splitter"]]
+  class split_dir splitStyle
+  class split_dir smallFont
+
+  edisend_trad[["[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)"]]
+  class edisend_trad tradStyle
+  class edisend_trad smallFont
+
+  outbox[["outbox/   <-- fichiers XML déposés ici"]]
+  class outbox outStyle
+  class outbox smallFont
 
   %% Explicit node widths to reduce clipping in previews
-  style inbox width:420px
-  style edisend_split width:700px
-  style split_dir width:700px
-  style edisend_trad width:700px
-  style outbox width:420px
+  style inbox width:480px
+  style edisend_split width:880px
+  style split_dir width:880px
+  style edisend_trad width:880px
+  style outbox width:480px
+
+  %% Make connectors white by styling the link color (works in many Mermaid renderers)
+  linkStyle default stroke:#ffffff,stroke-width:2px
 
   inbox --> edisend_split
-  edisend_split -->|split| split_dir
+  edisend_split --> split_dir
   split_dir --> edisend_trad
-  edisend_trad -->|map → xml| outbox
+  edisend_trad --> outbox
 ```
 
 
