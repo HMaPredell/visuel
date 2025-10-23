@@ -1,26 +1,32 @@
 # MANITOU DESADV D96A R 
 ## Schéma du flux
 
-Voici un schéma Mermaid (affichage recommandé dans VS Code avec l'extension `Markdown Preview Mermaid Support`) :
 
 ```mermaid
 flowchart TD
   %% Styles
-  classDef inboxStyle fill:#ffefef,stroke:#b22222,stroke-width:1px;
-  classDef splitStyle fill:#fff7cc,stroke:#b8860b,stroke-width:1px;
-  classDef tradStyle fill:#e8fff0,stroke:#228b22,stroke-width:1px;
-  classDef outStyle fill:#e6f0ff,stroke:#1e90ff,stroke-width:1px;
+  %% Neutral styles
+  classDef nodeStyle fill:#ffffff,stroke:#444,stroke-width:1px;
 
-  inbox["inbox/edifact<br/> (fournisseur)"]:::inboxStyle
-  edisend_split["EDISEND: DESADV<br/>MANITOU_DESADV_D96A_R<br/>(split)"]:::splitStyle
-  split_dir["tmp/split_MANITOU_DESADV_D96A_R<br/>(messages UNH..UNT)"]:::splitStyle
-  edisend_trad["EDISEND: TRAD_DESADV_MANI<br/>MANITOU_DESADV_D96A_R_trad<br/>(trad)"]:::tradStyle
-  outbox["outbox/<br/>(XML)"]:::outStyle
+  l1["<pre>inbox/edifact/        &lt;-- Fournisseur d&eacute;pose ici</pre>"]:::nodeStyle
+  l2["<pre>    |</pre>"]:::nodeStyle
+  l3["<pre>    v</pre>"]:::nodeStyle
+  l4["<pre>[EDISEND: DESADV]  (binaire: MANITOU_DESADV_D96A_R)  &lt;- processeur initial</pre>"]:::nodeStyle
+  l5["<pre>    |</pre>"]:::nodeStyle
+  l6["<pre>    |  (1) lit `inbox/edifact/`</pre>"]:::nodeStyle
+  l7["<pre>    |  (2) split : d&eacute;coupe le flux EDIFACT en messages (UNH..UNT)</pre>"]:::nodeStyle
+  l8["<pre>    v</pre>"]:::nodeStyle
+  l9["<pre>tmp/split_MANITOU_DESADV_D96A_R/   &lt;-- fichiers .txt cr&eacute;es par le splitter</pre>"]:::nodeStyle
+  l10["<pre>    |</pre>"]:::nodeStyle
+  l11["<pre>    v</pre>"]:::nodeStyle
+  l12["<pre>[EDISEND: TRAD_DESADV_MANI] (binaire: MANITOU_DESADV_D96A_R_trad)</pre>"]:::nodeStyle
+  l13["<pre>    |</pre>"]:::nodeStyle
+  l14["<pre>    |  (1) lit chaque fichier split</pre>"]:::nodeStyle
+  l15["<pre>    |  (2) traduit le message EDIFACT -&gt; XML</pre>"]:::nodeStyle
+  l16["<pre>    v</pre>"]:::nodeStyle
+  l17["<pre>outbox/   &lt;-- fichiers XML d&eacute;pos&eacute;s ici</pre>"]:::nodeStyle
 
-  inbox --> edisend_split
-  edisend_split -->|normalize → split| split_dir
-  split_dir --> edisend_trad
-  edisend_trad -->|map → xml| outbox
+  l1 --> l2 --> l3 --> l4 --> l5 --> l6 --> l7 --> l8 --> l9 --> l10 --> l11 --> l12 --> l13 --> l14 --> l15 --> l16 --> l17
 ```
 
 
