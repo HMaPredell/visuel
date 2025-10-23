@@ -4,15 +4,14 @@
 
 ```mermaid
 flowchart LR
-  %% Styles (paler backgrounds, black text)
-  classDef inboxStyle fill:#fff7f7,stroke:#c85b5b,stroke-width:1px,color:#000;
-  classDef splitStyle fill:#fffdf0,stroke:#d6a85a,stroke-width:1px,color:#000;
-  classDef tradStyle fill:#f6fff5,stroke:#6aa86a,stroke-width:1px,color:#000;
-  classDef outStyle fill:#f2f7ff,stroke:#5a9be0,stroke-width:1px,color:#000;
-  %% Font-size definition (use single class application)
+  %% Paler pastel backgrounds, black text
+  classDef inboxStyle fill:#fffdfc,stroke:#e8b6b6,stroke-width:1px,color:#000;
+  classDef splitStyle fill:#fffef9,stroke:#eadbb0,stroke-width:1px,color:#000;
+  classDef tradStyle fill:#fbfff9,stroke:#cfe8c9,stroke-width:1px,color:#000;
+  classDef outStyle fill:#f7fbff,stroke:#c6dbf4,stroke-width:1px,color:#000;
   classDef smallFont font-size:12px;
 
-  %% Nodes (apply one class per node, then assign smallFont separately)
+  %% Nodes (single class assignment per node to avoid parser issues)
   inbox[["inbox/edifact/ <-- Fournisseur dépose ici"]]
   class inbox inboxStyle
   class inbox smallFont
@@ -33,14 +32,14 @@ flowchart LR
   class outbox outStyle
   class outbox smallFont
 
-  %% Explicit node widths to reduce clipping in previews
-  style inbox width:480px
-  style edisend_split width:880px
-  style split_dir width:880px
-  style edisend_trad width:880px
-  style outbox width:480px
+  %% Wider nodes to reduce clipping
+  style inbox width:560px
+  style edisend_split width:1100px
+  style split_dir width:1100px
+  style edisend_trad width:1100px
+  style outbox width:560px
 
-  %% Make connectors white by styling the link color (works in many Mermaid renderers)
+  %% White connectors (may be ignored by some renderers depending on theme)
   linkStyle default stroke:#ffffff,stroke-width:2px
 
   inbox --> edisend_split
