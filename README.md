@@ -17,18 +17,18 @@ flowchart TD
   classDef bigBlock fill:#fffaf8,stroke:#d0a0a0,stroke-width:2px,color:#000,font-size:14px;
   classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:12px;
 
-  FOURNISSEUR[["FOURNISSEUR\n(ENVOIE)\n\nOFTP2 / AS2"]]:::bigBlock
-  EDISEND_SPLIT[["[EDISEND: DESADV]\n(binaire: MANITOU_DESADV_D96A_R_split)\n(Processor: split)"]]:::stepBlock
-  SPLIT_DIR[["/tmp/split_MANITOU_DESADV_D96A_R/\n(fichiers .txt par message UNH..UNT)"]]:::stepBlock
-  EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]\n(binaire: MANITOU_DESADV_D96A_R_trad)\n(Processor: trad)"]]:::stepBlock
-  OUTBOX[["outbox/\n(XML déposés ici)"]]:::stepBlock
-  MEC[["MEC\n(équipement / endpoint final)"]]:::bigBlock
+   FOURNISSEUR[["FOURNISSEUR<br/>(ENVOIE)<br/>"]]:::bigBlock
+   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
+  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par message UNH..UNT)"]]:::stepBlock
+   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
+   OUTBOX[["outbox/<br/>(XML déposés ici)"]]:::stepBlock
+   MEC[["MEC<br/>(équipement / endpoint final)"]]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
   EDISEND_SPLIT -->|split| SPLIT_DIR
   SPLIT_DIR -->|file poll / trigger| EDISEND_TRAD
   EDISEND_TRAD -->|map → xml| OUTBOX
-  OUTBOX -->|envoi| MEC
+  OUTBOX --> MEC
 ```
 
 > Remarque : le bloc "FOURNISSEUR" est le point d'entrée (OFTP2 / AS2), et le bloc "MEC" est l'endpoint final auquel les XML sont destinés.
@@ -36,8 +36,8 @@ flowchart TD
 ## Que fait chaque composant ?
 
 - FOURNISSEUR : envoie un fichier EDIFACT (interchange). Le transport peut être OFTP2, AS2 ou équivalent.
-- EDISEND DESADV (split) : lit l'interchange, découpe chaque message UNH..UNT et écrit un fichier par message dans `/tmp/split_MANITOU_DESADV_D96A_R/`.
-- Répertoire de split : contient les fichiers individuels (extension `.edi` ou `.txt`) prêts pour la traduction.
+- EDISEND DESADV (split) : lit l'interchange, découpe chaque message UNH..UNT et écrit un fichier par message dans `/inbox/split_MANITOU_DESADV_D96A_R/`.
+- Répertoire de split : contient les fichiers individuels (extension `.edi`) prêts pour la traduction.
 - EDISEND TRAD_DESADV_MANI (trad) : consomme les fichiers splittés, applique le mapping et produit les fichiers XML dans `outbox/`.
 - OUTBOX / MEC : fichiers XML stockés en `outbox/` puis envoyés/consommés par le système de destination (MEC).
 
