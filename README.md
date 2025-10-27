@@ -25,9 +25,9 @@ flowchart TD
    MEC[["MEC<br/>(équipement / endpoint final)"]]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
-  EDISEND_SPLIT -->|split| SPLIT_DIR
-  SPLIT_DIR -->|file poll / trigger| EDISEND_TRAD
-  EDISEND_TRAD -->|map → xml| OUTBOX
+  EDISEND_SPLIT -->|SPLIT| SPLIT_DIR
+  SPLIT_DIR -->|à écrire| EDISEND_TRAD
+  EDISEND_TRAD -->|EDIFACT → XML| OUTBOX
   OUTBOX --> MEC
 ```
 
