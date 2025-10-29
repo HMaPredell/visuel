@@ -59,11 +59,11 @@ flowchart TD
   classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:12px;
 
    FOURNISSEUR[["FOURNISSEUR<br/>(ENVOIE)<br/>"]]:::bigBlock
-   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
-  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par message UNH..UNT)"]]:::stepBlock
-   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
+   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: <br/>MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
+  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par <br/>message UNH..UNT)"]]:::stepBlock
+   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: <br/>MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
    OUTBOX[["outbox/<br/>(XML déposés ici)"]]:::stepBlock
-   MEC[["MEC<br/>(équipement / endpoint final)"]]:::bigBlock
+   MEC[["MEC<br/>(endpoint final)"]]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
   EDISEND_SPLIT -->|split| SPLIT_DIR
