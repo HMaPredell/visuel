@@ -48,25 +48,27 @@
 
 ## 4) Comment ça fonctionne (schéma)
 
-Le schéma ci-dessous montre le flux. J'ai simplifié les textes pour éviter que les boîtes ne coupent les mots.
+Le schéma ci-dessous montre le flux.
 
 <a id="4-comment-ca-fonctionne-schema"></a>
+
 ```mermaid
 flowchart TD
+  %% Large blocks, vertical layout
   classDef bigBlock fill:#fffaf8,stroke:#d0a0a0,stroke-width:2px,color:#000,font-size:14px;
   classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:12px;
 
-  FOURNISSEUR["FOURNISSEUR\n(ENVOIE)"]:::bigBlock
-  EDISEND_SPLIT["EDISEND: DESADV\nMANITOU_DESADV_D96A_R_split"]:::stepBlock
-  SPLIT_DIR["/inbox/split_MANITOU_DESADV_D96A_R/\n(.edi par message)"]:::stepBlock
-  EDISEND_TRAD["EDISEND: TRAD_DESADV_MANI\nMANITOU_DESADV_D96A_R.rte"]:::stepBlock
-  OUTBOX["outbox/\n(XML)"]:::stepBlock
-  MEC["MEC\n(endpoint)"]:::bigBlock
+   FOURNISSEUR[["FOURNISSEUR<br/>(ENVOIE)<br/>"]]:::bigBlock
+   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
+  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par message UNH..UNT)"]]:::stepBlock
+   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
+   OUTBOX[["outbox/<br/>(XML déposés ici)"]]:::stepBlock
+   MEC[["MEC<br/>(équipement / endpoint final)"]]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
   EDISEND_SPLIT -->|split| SPLIT_DIR
-  SPLIT_DIR -->|lire| EDISEND_TRAD
-  EDISEND_TRAD -->|xml| OUTBOX
+  SPLIT_DIR -->|TRADUCTION| EDISEND_TRAD
+  EDISEND_TRAD -->|map → xml| OUTBOX
   OUTBOX --> MEC
 ```
 
