@@ -18,8 +18,7 @@
     - [7.a) `install_manitou_update_20251027.sh`](#7a-install_manitou_update_20251027sh)
     - [7.b) `rollback_manitou_update_20251027.sh`](#7b-rollback_manitou_update_20251027sh)
   - [8) Vérifications post-installation (rapide et simple)](#8-vérifications-post-installation-rapide-et-simple)
-  - [9) Modifier les couleurs du schéma Mermaid (optionnel)](#9-modifier-les-couleurs-du-schéma-mermaid-optionnel)
-  - [10) Contact et notes](#10-contact-et-notes)
+  
 
 ---
 
@@ -138,15 +137,3 @@ cd /chemin/vers/edidev/package_install_rte_20251027
 4. Si le routing n'a pas pris la modification, redémarrez le service TradExpress selon vos procédures.
 
 ---
-
-## 9) Modifier les couleurs du schéma Mermaid (optionnel)
-
-Pour changer les couleurs, éditez la `classDef` au début du bloc Mermaid (couleurs en hex).
-
----
-
-## 10) Contact et notes
-
-Pour toute question opérationnelle, envoyez les logs `[ROUTING]` et `[ARCHIVE RTE]` au support TradExpress.
-
-Merci — équipe déploiement.
