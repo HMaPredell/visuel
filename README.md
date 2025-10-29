@@ -1,120 +1,152 @@
-# MANITOU DESADV D96A R — README explicatif
+# MANITOU DESADV D96A R — README
 
-Ce document explique les changements apportés : séparation du RTE original en deux composants (splitter + traducteur), où les fichiers doivent être placés et comment installer / basculer en production.
+<small>Version: package_install_rte_20251027 — Documentation</small>
 
-## Résumé
-- Nous avons extrait la partie « split » du RTE original `MANITOU_DESADV_D96A_R.rte` en un RTE dédié : `MANITOU_DESADV_D96A_R_split.rte` (ou `MANITOU_DESADV_D96A_R.split.rte` selon nommage).
-- Le traducteur original a été adapté en un RTE « trad » appelé `MANITOU_DESADV_D96A_R_trad.rte` qui lit les fichiers splittés et produit les XML dans `outbox/`.
+---
 
-Avant : un seul RTE prenait en entrée l'interchange EDIFACT et faisait le split + la traduction.
-Maintenant : pipeline en deux étapes — split (un fichier par message UNH..UNT) → trad (mapping → XML).
+## Table des matières
 
-## Schéma du flux
+- [MANITOU DESADV D96A R — README](#manitou-desadv-d96a-r--readme)
+  - [Table des matières](#table-des-matières)
+  - [1) Résumé rapide](#1-résumé-rapide)
+  - [2) Ce qui change (avant / après)](#2-ce-qui-change-avant--après)
+  - [3) Nouveautés et pourquoi](#3-nouveautés-et-pourquoi)
+  - [4) Comment ça fonctionne (schéma)](#4-comment-ça-fonctionne-schéma)
+  - [5) Arborescence attendue (exemple)](#5-arborescence-attendue-exemple)
+  - [6) Commandes (install / rollback)](#6-commandes-install--rollback)
+  - [7) Que fait exactement `install` et `rollback` (explication simple)](#7-que-fait-exactement-install-et-rollback-explication-simple)
+    - [7.a) `install_manitou_update_20251027.sh`](#7a-install_manitou_update_20251027sh)
+    - [7.b) `rollback_manitou_update_20251027.sh`](#7b-rollback_manitou_update_20251027sh)
+  - [8) Vérifications post-installation (rapide et simple)](#8-vérifications-post-installation-rapide-et-simple)
+  - [9) Modifier les couleurs du schéma Mermaid (optionnel)](#9-modifier-les-couleurs-du-schéma-mermaid-optionnel)
+  - [10) Contact et notes](#10-contact-et-notes)
 
+---
+
+## 1) Résumé rapide
+
+- On a séparé le RTE monolithique en deux : un RTE split (découpe) et un RTE trad (traduction).
+- But simple : rendre le traitement plus fiable et plus facile à gérer.
+
+---
+
+## 2) Ce qui change (avant / après)
+
+- Avant : un seul RTE faisait tout.
+- Maintenant :
+  - `MANITOU_DESADV_D96A_R_split.rte` — fait le split (sortie : `/inbox/split_MANITOU_DESADV_D96A_R/`).
+  - `MANITOU_DESADV_D96A_R.rte` — fait la traduction (lit le dossier split et écrit dans `outbox/`).
+
+---
+
+## 3) Nouveautés et pourquoi
+
+- Séparation des tâches : split / trad.
+- Moins de risques : une erreur touche seulement un message.
+- Plus simple à tester et à corriger.
+
+---
+
+## 4) Comment ça fonctionne (schéma)
+
+Le schéma ci-dessous montre le flux. J'ai simplifié les textes pour éviter que les boîtes ne coupent les mots.
+
+<a id="4-comment-ca-fonctionne-schema"></a>
 ```mermaid
 flowchart TD
-  %% Large blocks, vertical layout
   classDef bigBlock fill:#fffaf8,stroke:#d0a0a0,stroke-width:2px,color:#000,font-size:14px;
   classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:12px;
 
-   FOURNISSEUR[["FOURNISSEUR<br/>(ENVOIE)<br/>"]]:::bigBlock
-   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
-  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par message UNH..UNT)"]]:::stepBlock
-   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
-   OUTBOX[["outbox/<br/>(XML déposés ici)"]]:::stepBlock
-   MEC[["MEC<br/>(équipement / endpoint final)"]]:::bigBlock
+  FOURNISSEUR["FOURNISSEUR\n(ENVOIE)"]:::bigBlock
+  EDISEND_SPLIT["EDISEND: DESADV\nMANITOU_DESADV_D96A_R_split"]:::stepBlock
+  SPLIT_DIR["/inbox/split_MANITOU_DESADV_D96A_R/\n(.edi par message)"]:::stepBlock
+  EDISEND_TRAD["EDISEND: TRAD_DESADV_MANI\nMANITOU_DESADV_D96A_R.rte"]:::stepBlock
+  OUTBOX["outbox/\n(XML)"]:::stepBlock
+  MEC["MEC\n(endpoint)"]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
-  EDISEND_SPLIT -->|SPLIT| SPLIT_DIR
-  SPLIT_DIR -->|TRADUCTION| EDISEND_TRAD
-  EDISEND_TRAD -->|EDIFACT → XML| OUTBOX
+  EDISEND_SPLIT -->|split| SPLIT_DIR
+  SPLIT_DIR -->|lire| EDISEND_TRAD
+  EDISEND_TRAD -->|xml| OUTBOX
   OUTBOX --> MEC
 ```
 
-> Remarque : le bloc "FOURNISSEUR" est le point d'entrée (OFTP2 / AS2), et le bloc "MEC" est l'endpoint final auquel les XML sont destinés.
+---
 
-## Que fait chaque composant ?
-
-- FOURNISSEUR : envoie un fichier EDIFACT (interchange). Le transport peut être OFTP2, AS2 ou équivalent.
-- EDISEND DESADV (split) : lit l'interchange, découpe chaque message UNH..UNT et écrit un fichier par message dans `/inbox/split_MANITOU_DESADV_D96A_R/`.
-- Répertoire de split : contient les fichiers individuels (extension `.edi`) prêts pour la traduction.
-- EDISEND TRAD_DESADV_MANI (trad) : consomme les fichiers splittés, applique le mapping et produit les fichiers XML dans `outbox/`.
-- OUTBOX / MEC : fichiers XML stockés en `outbox/` puis envoyés/consommés par le système de destination (MEC).
-
-## Installation / bascule (script fourni)
-
-Le script suivant archive l'ancien RTE `MANITOU_DESADV_D96A_R.rte` en lui ajoutant `_old`, copie les nouveaux RTEs, compile et prépare les dossiers nécessaires.
-
-Fichiers fournis :
-
-- `install_manitou_update.sh` — script d'installation (archive et installe). Exécuter dans le répertoire `package_install_rte_20251027/`.
-- `rollback_manitou_update.sh` — helper fourni pour effectuer un rollback simple (supprime les RTE installés et restaure la dernière archive depuis `edidev/rte/ARCHIVE/`).
-  
-Note importante : l'installateur ne génère plus de script de rollback par installation. Lorsqu'il archive les anciens RTEs, il les place dans `edidev/rte/ARCHIVE/`. Utilisez le helper `rollback_manitou_update_20251027.sh` fourni dans le paquet pour supprimer les RTE installés (split + trad) et restaurer automatiquement la dernière archive disponible (le helper remettra l'archive au nom `MANITOU_DESADV_D96A_R.rte`).
-
-
-### Notes pour la mise en place du routage
-
-- Remplacer l'ancien edisend qui traitait tout en un par deux edisends :
-  - Un edisend (ou le même edisend configuré) doit lancer `MANITOU_DESADV_D96A_R_split` lors de la réception (OFTP2/AS2) et écrire les messages splittés dans `/inbox/split_MANITOU_DESADV_D96A_R/`.
-  - Un second edisend (TRAD) doit surveiller ce répertoire (mode as-file polling ou par trigger) et lancer `MANITOU_DESADV_D96A_R_trad` pour produire les XML.
-
-- Si votre plateforme utilise une configuration de réception (recevin / route), ajoutez/modifiez l'entrée pour diriger les paquets entrants vers le RTE split. Exemple conceptuel :
-
-  - Rechercher où est défini `MANITOU_DESADV_D96A_R.rte` dans vos configurations `rte/` ou dans l'interface d'administration d'EDISEND et remplacer par `MANITOU_DESADV_D96A_R_split` pour l'étape d'arrivée.
-
-## Vérifications post-installation
-
-1. Placer manuellement un fichier EDIFACT de test dans `inbox/edifact/` et vérifier que le répertoire `inbox/split_MANITOU_DESADV_D96A_R/` reçoit un fichier par message UNH..UNT.
-2. Vérifier que `outbox/` reçoit les fichiers XML générés par le traducteur.
-3. Consulter `syslog` / logs applicatifs pour s'assurer qu'il n'y a pas d'erreurs de parsing ou d'encoding.
-
-## Arborescence et emplacements utiles
-
-Exemple attendu (structure racine `edidev/`) :
+## 5) Arborescence attendue (exemple)
 
 ```
 edidev/
 ├── rte/
-│   ├── MANITOU_DESADV_D96A_R_20251027_old.rte (ancien)
-│   ├── MANITOU_DESADV_D96A_R_split.rte (nouveau)
-│   ├── MANITOU_DESADV_D96A_R.rte (nouveau)
+│   ├── ARCHIVE/                          # archives des anciens RTE
+│   ├── MANITOU_DESADV_D96A_R_split.rte   # split
+│   └── MANITOU_DESADV_D96A_R.rte         # trad
 ├── inbox/
-│   ├── edifact/
-│   └── split_MANITOU_DESADV_D96A_R/
-└── outbox/
-└── package_install_rte_20251027/
+│   ├── edifact/                          # interchanges entrants
+  └── split_MANITOU_DESADV_D96A_R/      # sorties du splitter (.edi)
+└── outbox/                               # XML générés
+└── package_install_rte_20251027/         # paquet d'installation (scripts + dumps)
 ```
 
-Fin du README.
+---
 
-## Commandes bash (install / rollback)
+## 6) Commandes (install / rollback)
 
-Exemples rapides pour exécuter l'installation et faire un rollback. Adaptez les chemins selon votre installation.
+Exécutez ces commandes depuis le dossier du paquet (`package_install_rte_20251027`) :
 
-1) Installer depuis le paquet (exécuter dans le dossier du paquet `package_install_rte_20251027`)
+Installer :
 
 ```bash
-# placez les fichiers fournis dans le dossier du paquet (ou utilisez ceux fournis)
 cd /chemin/vers/edidev/package_install_rte_20251027
 ./install_manitou_update_20251027.sh
 ```
 
-2) Si vous voulez lancer l'install sans changer de dossier (exécution depuis n'importe où)
-
-```bash
-./chemin/vers/edidev/package_install_rte_20251027/install_manitou_update_20251027.sh
-```
-
-3) Lister les archives disponibles (dans `edidev/rte/ARCHIVE/` — c'est ici que l'installateur place les archives)
-
-```bash
-ls -1 /chemin/vers/edidev/rte/ARCHIVE/ | grep MANITOU_DESADV_D96A_R || true
-```
-
-4) Utiliser le helper fourni pour effectuer le rollback (supprime les RTE installés et restaure la dernière archive)
+Rollback :
 
 ```bash
 cd /chemin/vers/edidev/package_install_rte_20251027
 ./rollback_manitou_update_20251027.sh
 ```
+
+---
+
+## 7) Que fait exactement `install` et `rollback` (explication simple)
+
+### 7.a) `install_manitou_update_20251027.sh`
+
+1. Sauvegarde l'entrée edisend et le routing quand possible.
+2. Modifie le routing pour utiliser le RTE split (édition directe du fichier de contrôle).
+3. Copie les nouveaux RTE dans `rte/` et archive l'ancien dans `rte/ARCHIVE/`.
+4. Importe le dump edisend `TRAD_DESADV_MANI` fourni si l'entrée manque.
+5. Compile les RTE si l'outil `mktr` est disponible.
+
+### 7.b) `rollback_manitou_update_20251027.sh`
+
+1. Supprime les RTE installés (split + trad).
+2. Supprime l'entrée edisend `TRAD_DESADV_MANI` si elle existe.
+3. Remet `TRANSLATOR=` du routing sur `MANITOU_DESADV_D96A_R` (édition directe du fichier de contrôle).
+4. Restaure la dernière archive RTE trouvée dans `rte/ARCHIVE/`.
+5. IMPORTANT : rollback NE restaure PAS automatiquement les dumps ; toute réimportation reste manuelle.
+
+---
+
+## 8) Vérifications post-installation (rapide et simple)
+
+1. Déposez un interchange EDIFACT de test dans `inbox/edifact/`.
+2. Vérifiez que `inbox/split_MANITOU_DESADV_D96A_R/` contient un fichier `.edi` par message.
+3. Vérifiez que `outbox/` reçoit les XML produits.
+4. Si le routing n'a pas pris la modification, redémarrez le service TradExpress selon vos procédures.
+
+---
+
+## 9) Modifier les couleurs du schéma Mermaid (optionnel)
+
+Pour changer les couleurs, éditez la `classDef` au début du bloc Mermaid (couleurs en hex).
+
+---
+
+## 10) Contact et notes
+
+Pour toute question opérationnelle, envoyez les logs `[ROUTING]` et `[ARCHIVE RTE]` au support TradExpress.
+
+Merci — équipe déploiement.
