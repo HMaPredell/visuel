@@ -48,23 +48,20 @@
 
 ## 4) Comment ça fonctionne (schéma)
 
-Le schéma ci-dessous montre le flux.
-
 <a id="4-comment-ca-fonctionne-schema"></a>
 
 ```mermaid
 flowchart TD
   %% Large blocks, vertical layout
-  %%{init: {"flowchart": {"nodeSpacing": 100, "rankSpacing": 80}}}%%
-  classDef bigBlock fill:#fffaf8,stroke:#d0a0a0,stroke-width:2px,color:#000,font-size:16px;
-  classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:14px;
+  classDef bigBlock fill:#fffaf8,stroke:#d0a0a0,stroke-width:2px,color:#000,font-size:14px;
+  classDef stepBlock fill:#fcfdf6,stroke:#e6d9b2,stroke-width:1px,color:#000,font-size:12px;
 
-  FOURNISSEUR["FOURNISSEUR\n(ENVOIE)\n\n"]:::bigBlock
-  EDISEND_SPLIT["EDISEND: DESADV\n\nMANITOU_DESADV_D96A_R_split&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]:::stepBlock
-  SPLIT_DIR["/inbox/split_MANITOU_DESADV_D96A_R/\n\n(.edi par message)&nbsp;&nbsp;&nbsp;&nbsp;"]:::stepBlock
-  EDISEND_TRAD["EDISEND: TRAD_DESADV_MANI\n\nMANITOU_DESADV_D96A_R.rte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]:::stepBlock
-  OUTBOX["outbox/\n\n(XML)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]:::stepBlock
-  MEC["MEC\n\n(endpoint)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]:::bigBlock
+   FOURNISSEUR[["FOURNISSEUR<br/>(ENVOIE)<br/>"]]:::bigBlock
+   EDISEND_SPLIT[["[EDISEND: DESADV]<br/>(binaire: <br/>MANITOU_DESADV_D96A_R_split)<br/>"]]:::stepBlock
+  SPLIT_DIR[["/inbox/split_MANITOU_DESADV_D96A_R/<br/>(fichiers .edi par <br/>message UNH..UNT)"]]:::stepBlock
+   EDISEND_TRAD[["[EDISEND: TRAD_DESADV_MANI]<br/>(binaire: <br/>MANITOU_DESADV_D96A_R_trad)<br/>"]]:::stepBlock
+   OUTBOX[["outbox/<br/>(XML déposés ici)"]]:::stepBlock
+   MEC[["MEC<br/>(endpoint final)"]]:::bigBlock
 
   FOURNISSEUR -->|OFTP2 / AS2| EDISEND_SPLIT
   EDISEND_SPLIT -->|SPLIT| SPLIT_DIR
